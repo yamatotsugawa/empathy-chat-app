@@ -20,7 +20,7 @@ export default function Home() {
   const sendMessage = async () => {
     if (!input.trim()) return
 
-    const newMessages = [...messages, { role: 'user', content: input }]
+    const newMessages: Message[] = [...messages, { role: 'user' as const, content: input }]
     setMessages(newMessages)
     setInput('')
 
@@ -29,14 +29,12 @@ export default function Home() {
       messages: [
         {
           role: 'system',
-content: `
+          content: `
 あなたはどんな悩みにもポジティブに変換して励ます役割です。
 共感や質問は不要で、とにかく明るく前向きな言葉で返してください。
 否定やアドバイスは避けて、ひたすら「大丈夫」「それもいいね」「むしろチャンス」などの言葉で包んでください。
 返答は200文字以内。言葉はやさしく、カジュアルに。
-`
-
-
+          `
         },
         ...newMessages
       ]
@@ -74,7 +72,7 @@ content: `
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault() // Enterでの送信を無効化
+                e.preventDefault()
               }
             }}
           />
