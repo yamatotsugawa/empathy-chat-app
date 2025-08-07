@@ -71,7 +71,7 @@ export default function Home() {
   const sendMessage = async () => {
     if (!input.trim()) return
 
-    const newMessages = [...messages, { role: 'user', content: input }]
+    const newMessages: Message[] = [...messages, { role: 'user' as const, content: input }]
     setMessages(newMessages)
     setInput('')
 
@@ -87,35 +87,31 @@ export default function Home() {
     })
 
     const reply = response.choices[0].message.content || ''
-    setMessages([...newMessages, { role: 'assistant', content: reply }])
+    setMessages([...newMessages, { role: 'assistant' as const, content: reply }])
   }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
-      <div className="w-full max-w-5xl bg-white shadow-lg rounded-xl p-6 space-y-6">
+      <div className="w-full max-w-3xl bg-white shadow-lg rounded-xl p-6 space-y-6">
         <h1 className="text-2xl font-bold text-center text-gray-800">悩み相談チャット</h1>
 
         {/* キャラクター選択 */}
-        <div className="flex justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           {characters.map((char) => (
             <button
               key={char.id}
               onClick={() => setSelectedCharacter(char.id)}
               className={`flex flex-col items-center justify-start p-4 rounded-xl border w-40 h-60 shadow-sm transition ${
-                selectedCharacter === char.id
-                  ? 'bg-blue-50 border-blue-500'
-                  : 'bg-white'
+                selectedCharacter === char.id ? 'bg-blue-50 border-blue-500' : 'bg-white'
               }`}
             >
               <img
                 src={`/images/${char.image}`}
                 alt={char.name}
-                className="w-20 h-20 object-contain mb-1"
+                className="w-20 h-20 object-contain mb-2"
               />
               <h2 className="font-bold text-lg">{char.name}</h2>
-              <p className="text-sm text-gray-600 text-center leading-tight mt-1">
-                {char.description}
-              </p>
+              <p className="text-sm text-gray-600 text-center leading-tight">{char.description}</p>
             </button>
           ))}
         </div>
@@ -144,9 +140,10 @@ export default function Home() {
             placeholder="悩みを入力してください"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onCompositionStart={(e) => e.stopPropagation()}
             onKeyDown={(e) => {
-              const isComposing = e.nativeEvent.isComposing
-              if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
+              // IME変換中は送信しない
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && !e.shiftKey) {
                 e.preventDefault()
                 sendMessage()
               }
